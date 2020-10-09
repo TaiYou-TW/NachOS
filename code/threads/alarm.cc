@@ -51,8 +51,9 @@ Alarm::CallBack()
 {
     Interrupt *interrupt = kernel->interrupt;
     MachineStatus status = interrupt->getStatus();
+    bool stop = waitQueue.dispatch();
     
-    if (status == IdleMode) {	// is it time to quit?
+    if (status == IdleMode && !stop && waitQueue.IsEmpty()) {	// is it time to quit?
         if (!interrupt->AnyFutureInterrupts()) {
 	    timer->Disable();	// turn off the timer
 	}
@@ -61,3 +62,37 @@ Alarm::CallBack()
     }
 }
 
+void Alarm::WaitUntil(int x) {
+    IntStatus oldLevel = kernel->interrupt->SetLevel(IntOff);
+    Thread* t = kernel->currentThread;
+    cout << "Sleeping\n";
+    waitQueue.addThread(t, x);
+    kernel->interrupt->SetLevel(oldLevel);
+}
+
+void WaitQueue::addThread(Thread *t, int x) {
+    ASSERT(kernel->interrupt->getLevel() == IntOff);
+    processes.push_back(Process(t, current_time + x));
+    t->Sleep(false);
+}
+
+bool WaitQueue::dispatch() {
+    bool this_round_is_wakeup = false;
+    current_time++;
+    for(std::list<Process>::iterator it = processes.begin(); it != processes.end();) {
+	if (current_time >= it->wakeup_time) {
+	    this_round_is_wakeup = true;
+	    cout << "Thread continue...\n";
+	    kernel->scheduler->ReadyToRun(it->thread);
+	    it = processes.erase(it);
+	}
+	else {
+	    it++;
+	}
+    }
+    return this_round_is_wakeup;
+}
+
+bool WaitQueue::IsEmpty() {
+    return processes.size() == 0;
+}

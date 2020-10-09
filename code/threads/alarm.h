@@ -21,6 +21,26 @@
 #include "utility.h"
 #include "callback.h"
 #include "timer.h"
+#include <list>
+#include "thread.h"
+
+class Process {
+  public:
+    Process(Thread* t, int x): thread(t), wakeup_time(x) {};
+    Thread* thread;
+    int wakeup_time;
+};
+
+class WaitQueue {
+  public:
+    WaitQueue():current_time(0) {};
+    void addThread(Thread *t, int x);
+    bool dispatch();
+    bool IsEmpty();
+  private:
+    int current_time;
+    std::list<Process> processes;
+};
 
 // The following class defines a software alarm clock. 
 class Alarm : public CallBackObj {
@@ -33,7 +53,7 @@ class Alarm : public CallBackObj {
 
   private:
     Timer *timer;		// the hardware timer device
-
+    WaitQueue waitQueue;
     void CallBack();		// called when the hardware
 				// timer generates an interrupt
 };
