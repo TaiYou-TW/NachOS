@@ -173,12 +173,12 @@ bool AddrSpace::Load(char *fileName)
             // then, copy in the code and data segments into memory
             if (i < codeNumPages)
             {
-                // executable->ReadAt(
-                //     &(kernel->machine->mainMemory[j * PageSize]),
-                //     PageSize, noffH.code.inFileAddr + (i * PageSize));
-                executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
-                cout << "Code Data Buffer: " << buf << "\n";
-                kernel->machine->mainMemory[j * PageSize] = *buf;
+                executable->ReadAt(
+                    &(kernel->machine->mainMemory[j * PageSize]),
+                    PageSize, noffH.code.inFileAddr + (i * PageSize));
+                // executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
+                // cout << "Code Data Buffer: " << buf << "\n";
+                // kernel->machine->mainMemory[j * PageSize] = *buf;
             }
             else
             {
@@ -210,13 +210,13 @@ bool AddrSpace::Load(char *fileName)
         cout << "pgTBindex: " << noffH.initData.virtualAddr / PageSize << endl;
         cout << "remainNum: " << (noffH.code.virtualAddr % PageSize) << endl;
 
-        executable->ReadAt(
-            &(kernel->machine->mainMemory[noffH.initData.virtualAddr]),
-            noffH.initData.size, noffH.initData.inFileAddr);
+        // executable->ReadAt(
+        //     &(kernel->machine->mainMemory[noffH.initData.virtualAddr]),
+        //     noffH.initData.size, noffH.initData.inFileAddr);
 
-        /*executable->ReadAt(
+        executable->ReadAt(
             &(kernel->machine->mainMemory[pageTable[noffH.initData.virtualAddr / PageSize].physicalPage * PageSize + (PageSize)]),
-            noffH.initData.size, noffH.initData.inFileAddr);*/
+            noffH.initData.size, noffH.initData.inFileAddr);
     }
     delete executable; // close file
     return TRUE;       // success
