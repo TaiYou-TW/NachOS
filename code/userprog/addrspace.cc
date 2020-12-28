@@ -166,15 +166,15 @@ bool AddrSpace::Load(char *fileName)
             // then, copy in the code and data segments into memory
             if (i < codeNumPages)
             {
-            executable->ReadAt(
-                &(kernel->machine->mainMemory[pageTable[j * PageSize]),
-                PageSize, noffH.code.inFileAddr + (i * PageSize));
+                executable->ReadAt(
+                    &(kernel->machine->mainMemory[pageTable[j * PageSize]]),
+                    PageSize, noffH.code.inFileAddr + (i * PageSize));
             }
             else
             {
-            executable->ReadAt(
-                &(kernel->machine->mainMemory[pageTable[j * PageSize]),
-                PageSize, noffH.initData.inFileAddr + ((i-codeNumPages) * PageSize));
+                executable->ReadAt(
+                    &(kernel->machine->mainMemory[pageTable[j * PageSize]]),
+                    PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
             }
         }
     }
@@ -254,30 +254,37 @@ void AddrSpace::InitRegisters()
     // of branch delay possibility
     machine->WriteRegister(NextPCReg, 4);
 
-    //----------------------------------------------------------------------
-    // AddrSpace::SaveState
-    // 	On a context switch, save any machine state, specific
-    //	to this address space, that needs saving.
-    //
-    //	For now, don't need to save anything!
-    //----------------------------------------------------------------------
+    // Set the stack register to the end of the address space, where we
+    // allocated the stack; but subtract off a bit, to make sure we don't
+    // accidentally reference off the end!
+    machine->WriteRegister(StackReg, numPages * PageSize - 16);
+    DEBUG(dbgAddr, "Initializing stack pointer: " << numPages * PageSize - 16);
+}
 
-    void AddrSpace::SaveState()
-    {
-        pageTable = kernel->machine->pageTable;
-        numPages = kernel->machine->pageTableSize;
-    }
+//----------------------------------------------------------------------
+// AddrSpace::SaveState
+// 	On a context switch, save any machine state, specific
+//	to this address space, that needs saving.
+//
+//	For now, don't need to save anything!
+//----------------------------------------------------------------------
 
-    //----------------------------------------------------------------------
-    // AddrSpace::RestoreState
-    // 	On a context switch, restore the machine state so that
-    //	this address space can run.
-    //
-    //      For now, tell the machine where to find the page table.
-    //----------------------------------------------------------------------
+void AddrSpace::SaveState()
+{
+    pageTable = kernel->machine->pageTable;
+    numPages = kernel->machine->pageTableSize;
+}
 
-    void AddrSpace::RestoreState()
-    {
-        kernel->machine->pageTable = pageTable;
-        kernel->machine->pageTableSize = numPages;
-    }
+//----------------------------------------------------------------------
+// AddrSpace::RestoreState
+// 	On a context switch, restore the machine state so that
+//	this address space can run.
+//
+//      For now, tell the machine where to find the page table.
+//----------------------------------------------------------------------
+
+void AddrSpace::RestoreState()
+{
+    kernel->machine->pageTable = pageTable;
+    kernel->machine->pageTableSize = numPages;
+}
