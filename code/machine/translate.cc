@@ -199,6 +199,16 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
         return AddressErrorException;
     }
 
+    if (tlb == NULL)
+    {
+        cout << "TLB is NULL\n";
+    }
+
+    if (pageTable != NULL)
+    {
+        cout << "pageTable isn't NULL\n";
+    }
+
     // we must have either a TLB or a page table, but not both!
     ASSERT(tlb == NULL || pageTable == NULL);
     ASSERT(tlb != NULL || pageTable != NULL);

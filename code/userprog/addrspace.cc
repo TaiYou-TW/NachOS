@@ -56,18 +56,18 @@ SwapHeader(NoffHeader *noffH)
 
 AddrSpace::AddrSpace()
 {
-    pageTable = new TranslationEntry[NumPhysPages + NumVirsPages];
-    for (unsigned int i = 0; i < NumPhysPages; i++)
-    {
-        pageTable[i].virtualPage = i; // for now, virt page # = phys page #
-        pageTable[i].physicalPage = i;
-        //	pageTable[i].physicalPage = 0;
-        pageTable[i].valid = TRUE;
-        //	pageTable[i].valid = FALSE;
-        pageTable[i].use = FALSE;
-        pageTable[i].dirty = FALSE;
-        pageTable[i].readOnly = FALSE;
-    }
+    // pageTable = new TranslationEntry[NumPhysPages + NumVirsPages];
+    // for (unsigned int i = 0; i < NumPhysPages; i++)
+    // {
+    //     pageTable[i].virtualPage = i; // for now, virt page # = phys page #
+    //     pageTable[i].physicalPage = i;
+    //     //	pageTable[i].physicalPage = 0;
+    //     pageTable[i].valid = TRUE;
+    //     //	pageTable[i].valid = FALSE;
+    //     pageTable[i].use = FALSE;
+    //     pageTable[i].dirty = FALSE;
+    //     pageTable[i].readOnly = FALSE;
+    // }
 
     // zero out the entire address space
     //    bzero(kernel->machine->mainMemory, MemorySize);
@@ -123,6 +123,7 @@ bool AddrSpace::Load(char *fileName)
 
     int codeNumPages = divRoundUp(noffH.code.size, PageSize);
     cout << "codeNumPages: " << codeNumPages << "\n";
+    pageTable = new TranslationEntry[numPages];
     for (unsigned int i = 0, j = 0; i < numPages; i++)
     {
 
