@@ -124,6 +124,7 @@ bool AddrSpace::Load(char *fileName)
     int codeNumPages = divRoundUp(noffH.code.size, PageSize);
     for (unsigned int i = 0, j = 0; i < numPages; i++)
     {
+
         while (j < NumPhysPages && AddrSpace::usedPhyPage[j])
         {
             j++;
@@ -147,11 +148,13 @@ bool AddrSpace::Load(char *fileName)
             if (i < codeNumPages)
             {
                 executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
+                cout << "Code Data Buffer: " << buf << "\n";
                 kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
             }
             else
             {
                 executable->ReadAt(buf, PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
+                cout << "Init Data Buffer: " << buf << "\n";
                 kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
             }
         }

@@ -78,6 +78,7 @@ UserProgKernel::~UserProgKernel()
 {
 	delete fileSystem;
 	delete machine;
+	delete virtMemory;
 #ifdef FILESYS
 	delete synchDisk;
 #endif
