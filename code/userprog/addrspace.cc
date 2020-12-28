@@ -201,17 +201,22 @@ bool AddrSpace::Load(char *fileName)
     //                                   // at least until we have
     //                                   // virtual memory
 
-    // DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
+    DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
 
     if (noffH.initData.size > 0)
     {
-        // DEBUG(dbgAddr, "Initializing data segment.");
-        // DEBUG(dbgAddr, noffH.initData.virtualAddr << ", " << noffH.initData.size);
+        DEBUG(dbgAddr, "Initializing data segment.");
+        DEBUG(dbgAddr, noffH.initData.virtualAddr << ", " << noffH.initData.size);
         cout << "pgTBindex: " << noffH.initData.virtualAddr / PageSize << endl;
         cout << "remainNum: " << (noffH.code.virtualAddr % PageSize) << endl;
+
         executable->ReadAt(
-            &(kernel->machine->mainMemory[pageTable[noffH.initData.virtualAddr / PageSize].physicalPage * PageSize + (noffH.code.virtualAddr % PageSize)]),
+            &(kernel->machine->mainMemory[noffH.initData.virtualAddr]),
             noffH.initData.size, noffH.initData.inFileAddr);
+
+        /*executable->ReadAt(
+            &(kernel->machine->mainMemory[pageTable[noffH.initData.virtualAddr / PageSize].physicalPage * PageSize + (PageSize)]),
+            noffH.initData.size, noffH.initData.inFileAddr);*/
     }
     delete executable; // close file
     return TRUE;       // success
