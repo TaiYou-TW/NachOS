@@ -234,9 +234,9 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
             }
 
             //FIFO處理
-            if ()
-            {
-            }
+            // if ()
+            // {
+            // }
 
             /* 		Add Page fault code here		*/
             //kernel->stats->numPageFaults
