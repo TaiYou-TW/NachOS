@@ -133,7 +133,10 @@ bool AddrSpace::Load(char *fileName)
         {
             j++;
         }
+        cout << "i: " << i << "\n";
         cout << "PageIndex: " << j << "\n";
+        char *buf = new char[PageSize];
+        cout << "Clean Buffer: " << buf << "\n";
         // virtual mem
         if (j >= NumPhysPages)
         {
@@ -144,8 +147,6 @@ bool AddrSpace::Load(char *fileName)
             pageTable[i].dirty = false;
             pageTable[i].readOnly = false;
             // then, copy in the code and data segments into memory
-            char *buf = new char[PageSize];
-            cout << "Clean Buffer: " << buf << "\n";
             if (i < codeNumPages)
             {
                 executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
@@ -170,15 +171,21 @@ bool AddrSpace::Load(char *fileName)
             // then, copy in the code and data segments into memory
             if (i < codeNumPages)
             {
-                executable->ReadAt(
-                    &(kernel->machine->mainMemory[j * PageSize]),
-                    PageSize, noffH.code.inFileAddr + (i * PageSize));
+                // executable->ReadAt(
+                //     &(kernel->machine->mainMemory[j * PageSize]),
+                //     PageSize, noffH.code.inFileAddr + (i * PageSize));
+                executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
+                cout << "Code Data Buffer: " << buf << "\n";
+                kernel->machine->mainMemory[j * PageSize] = buf;
             }
             else
             {
-                executable->ReadAt(
-                    &(kernel->machine->mainMemory[j * PageSize]),
-                    PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
+                executable->ReadAt(buf, PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
+                cout << "Init Data Buffer: " << buf << "\n";
+                kernel->machine->mainMemory[j * PageSize] = buf;
+                // executable->ReadAt(
+                //     &(kernel->machine->mainMemory[j * PageSize]),
+                //     PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
             }
         }
     }
