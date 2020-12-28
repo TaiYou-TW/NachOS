@@ -167,13 +167,13 @@ bool AddrSpace::Load(char *fileName)
             if (i < codeNumPages)
             {
                 executable->ReadAt(
-                    &(kernel->machine->mainMemory[pageTable[j * PageSize]]),
+                    &(kernel->machine->mainMemory[j * PageSize]),
                     PageSize, noffH.code.inFileAddr + (i * PageSize));
             }
             else
             {
                 executable->ReadAt(
-                    &(kernel->machine->mainMemory[pageTable[j * PageSize]]),
+                    &(kernel->machine->mainMemory[j * PageSize]),
                     PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
             }
         }
