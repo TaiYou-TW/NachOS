@@ -56,7 +56,7 @@ SwapHeader(NoffHeader *noffH)
 
 AddrSpace::AddrSpace()
 {
-    pageTable = new TranslationEntry[NumPhysPages];
+    pageTable = new TranslationEntry[NumPhysPages + NumVirsPages];
     for (unsigned int i = 0; i < NumPhysPages; i++)
     {
         pageTable[i].virtualPage = i; // for now, virt page # = phys page #
@@ -178,7 +178,6 @@ bool AddrSpace::Load(char *fileName)
                 executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
                 cout << "Code Data Buffer: " << buf << "\n";
                 kernel->machine->mainMemory[j * PageSize] = *buf;
-                kernel->virtMemory->WriteSector(0, buf);
             }
             else
             {
