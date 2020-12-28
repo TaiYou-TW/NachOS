@@ -121,7 +121,11 @@ bool AddrSpace::Load(char *fileName)
 
     numPages = divRoundUp(size, PageSize);
 
+    char *b = new char[PageSize];
+    b = ".";
+    kernel->virtMemory->WriteSector(0, b);
     int codeNumPages = divRoundUp(noffH.code.size, PageSize);
+    cout << "codeNumPages: " << codeNumPages << "\n";
     for (unsigned int i = 0, j = 0; i < numPages; i++)
     {
 
@@ -176,13 +180,13 @@ bool AddrSpace::Load(char *fileName)
                 //     PageSize, noffH.code.inFileAddr + (i * PageSize));
                 executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
                 cout << "Code Data Buffer: " << buf << "\n";
-                kernel->machine->mainMemory[j * PageSize] = buf;
+                kernel->machine->mainMemory[j * PageSize] = *buf;
             }
             else
             {
                 executable->ReadAt(buf, PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
                 cout << "Init Data Buffer: " << buf << "\n";
-                kernel->machine->mainMemory[j * PageSize] = buf;
+                kernel->machine->mainMemory[j * PageSize] = *buf;
                 // executable->ReadAt(
                 //     &(kernel->machine->mainMemory[j * PageSize]),
                 //     PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
