@@ -132,7 +132,7 @@ bool AddrSpace::Load(char *fileName)
         {
             j++;
         }
-
+        cout << "PageIndex: " << j << "\n";
         // virtual mem
         if (j >= NumPhysPages)
         {
