@@ -145,6 +145,7 @@ bool AddrSpace::Load(char *fileName)
             pageTable[i].readOnly = false;
             // then, copy in the code and data segments into memory
             char *buf = new char[PageSize];
+            cout << "Clean Buffer: " << buf << "\n";
             if (i < codeNumPages)
             {
                 executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
