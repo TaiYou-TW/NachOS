@@ -221,19 +221,37 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
 
             kernel->stats->numPageFaults++;
 
+            // FIFO
+            if (true)
+            {
+                int swapInSectorIdx = pageTable[vpn].virtualPage;
+                // TODO:
+                int swapOutAddr = fifoCounter;
+
+                char *buf = new char[PageSize];
+                char *outBuf = new char[PageSize];
+
+                kernel->virtMemory->ReadSector(swapInSectorIdx, buf);
+                memcpy(outBuf, mainMemory[swapOutAddr], PageSize);
+
+                memcpy(&mainMemory[swapOutAddr], buf, PageSize);
+                kernel->virtMemory->WriteSector(swapInSectorIdx, outBuf);
+
+                // swap(mainMemory[swapOutAddr], buf)
+                // copy outBuf to vir mem
+            }
+            // LRU
+            else
+            {
+            }
             int j = 0;
             //有放資料的VM
-            while (AddrSpace::usedPhyPage[j])
+            while (AddrSpace::usedPhyPage[j] && j < NumPhysPages)
             {
-                if (j < NumPhysPages)
-                {
-                    j++;
-                }
-                else
-                {
-                    break;
-                }
+                j++;
             }
+
+            char *buf = new char[PageSize];
 
             //FIFO處理
             // if ()
