@@ -51,12 +51,12 @@ UserProgKernel::UserProgKernel(int argc, char **argv)
 		else if (strcmp(argv[i], "FIFO") == 0)
 		{
 			cout << "FIFO\n";
-			machine.pageReplacementType = FIFO;
+			machine->pageReplacementType = FIFOReplacement;
 		}
 		else if (strcmp(argv[i], "LRU") == 0)
 		{
 			cout << "LRU\n";
-			machine.pageReplacementType = LRU;
+			machine->pageReplacementType = LRU;
 		}
 	}
 }

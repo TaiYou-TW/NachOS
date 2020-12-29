@@ -240,9 +240,9 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
                 char *outBuf = new char[PageSize];
 
                 kernel->virtMemory->ReadSector(swapInSectorIdx, buf);
-                memcpy(outBuf, &mainMemory[pageTable[swapOutPageIdx].physicalPage * pageSize], PageSize);
+                memcpy(outBuf, &mainMemory[pageTable[swapOutPageIdx].physicalPage * PageSize], PageSize);
 
-                memcpy(&mainMemory[pageTable[swapOutPageIdx].physicalPage * pageSize], buf, PageSize);
+                memcpy(&mainMemory[pageTable[swapOutPageIdx].physicalPage * PageSize], buf, PageSize);
                 kernel->virtMemory->WriteSector(swapInSectorIdx, outBuf);
 
                 pageTable[swapOutPageIdx].virtualPage = pageTable[vpn].virtualPage;
