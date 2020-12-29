@@ -52,7 +52,11 @@ enum ExceptionType
 
 	NumExceptionTypes
 };
-
+enum PageReplacementType
+{
+	FIFO,
+	LRU
+}
 // User program CPU state.  The full set of MIPS registers, plus a few
 // more because we need to be able to start/stop a user program between
 // any two instructions (thus we need to keep track of things like load
@@ -92,8 +96,8 @@ class Machine
 {
 public:
 	Machine(bool debug); // Initialize the simulation of the hardware
-		// for running user programs
-	~Machine(); // De-allocate the data structures
+						 // for running user programs
+	~Machine();			 // De-allocate the data structures
 
 	// Routines callable by the Nachos kernel
 	void Run(); // Run a user program
@@ -110,7 +114,7 @@ public:
 	// are in terms of these data structures (plus the CPU registers).
 
 	char *mainMemory; // physical memory to store user program,
-		// code and data, while executing
+					  // code and data, while executing
 
 	// NOTE: the hardware translation of virtual addresses in the user program
 	// to physical addresses (relative to the beginning of "mainMemory")
@@ -135,6 +139,9 @@ public:
 
 	TranslationEntry *pageTable;
 	unsigned int pageTableSize;
+
+	PageReplacementType pageReplacementType;
+
 	bool ReadMem(int addr, int size, int *value);
 
 private:
@@ -169,8 +176,8 @@ private:
 
 	int registers[NumTotalRegs]; // CPU registers, for executing user programs
 
-	bool singleStep; // drop back into the debugger after each
-		// simulated instruction
+	bool singleStep;  // drop back into the debugger after each
+					  // simulated instruction
 	int runUntilTime; // drop back into the debugger when simulated
 					  // time reaches this value
 

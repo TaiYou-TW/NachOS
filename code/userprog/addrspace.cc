@@ -121,34 +121,43 @@ bool AddrSpace::Load(char *fileName)
 
     numPages = divRoundUp(size, PageSize);
 
+    // CODE占用的主記憶體
     int codeNumPages = divRoundUp(noffH.code.size, PageSize);
     cout << "codeNumPages: " << codeNumPages << "\n";
     pageTable = new TranslationEntry[numPages];
+    pageTable->count = 0;
     for (unsigned int i = 0, j = 0; i < numPages; i++)
     {
 
+        // 使用實體記憶體
         while (j < NumPhysPages && AddrSpace::usedPhyPage[j])
         {
             j++;
         }
+
+        // 使用虛擬記憶體，最大值為實體記憶體+虛擬記憶體的總和
         while (j >= NumPhysPages && j < NumPhysPages + NumVirsPages && AddrSpace::usedVirPage[j - NumPhysPages])
         {
             j++;
         }
-        cout << "i: " << i << "\n";
+
+        // cout << "i: " << i << "\n";
         cout << "PageIndex: " << j << "\n";
         char *buf = new char[PageSize];
         cout << "Clean Buffer: " << buf << "\n";
-        // virtual mem
+
+        // 虛擬記憶體
         if (j >= NumPhysPages)
         {
             AddrSpace::usedVirPage[j - NumPhysPages] = true;
             pageTable[i].virtualPage = j - NumPhysPages;
-            pageTable[i].valid = false;
+            pageTable[i].valid = false; //不在主記憶體內
             pageTable[i].use = false;
             pageTable[i].dirty = false;
             pageTable[i].readOnly = false;
+            pageTable[i].FIFOIndex = pageTable->count++;
             // then, copy in the code and data segments into memory
+
             if (i < codeNumPages)
             {
                 executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
@@ -164,6 +173,8 @@ bool AddrSpace::Load(char *fileName)
             pageTable[i].use = false;
             pageTable[i].dirty = false;
             pageTable[i].readOnly = false;
+            pageTable[i].FIFOIndex = pageTable->count++;
+
             // then, copy in the code and data segments into memory
             if (i < codeNumPages)
             {
@@ -174,15 +185,11 @@ bool AddrSpace::Load(char *fileName)
         }
     }
 
-    size = numPages * PageSize;
-
-    //操作，記憶體空間不夠，分配VM(大概)
-
     // ASSERT(numPages <= NumPhysPages); // check we're not trying
     //                                   // to run anything too big --
     //                                   // at least until we have
     //                                   // virtual memory
-
+    // size = numPages * PageSize;
     DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
 
     if (noffH.initData.size > 0)
