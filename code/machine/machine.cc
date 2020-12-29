@@ -71,6 +71,7 @@ Machine::Machine(bool debug)
     pageTable = NULL;
 #endif
     pageReplacementType = FIFOReplacement;
+    FIFOCount = 0;
     singleStep = debug;
     CheckEndian();
 }

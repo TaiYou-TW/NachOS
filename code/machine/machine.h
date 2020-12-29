@@ -142,6 +142,7 @@ public:
 
 	PageReplacementType pageReplacementType;
 
+	int FIFOCount;
 	bool ReadMem(int addr, int size, int *value);
 
 private:

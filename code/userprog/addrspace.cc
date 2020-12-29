@@ -125,7 +125,6 @@ bool AddrSpace::Load(char *fileName)
     int codeNumPages = divRoundUp(noffH.code.size, PageSize);
     cout << "codeNumPages: " << codeNumPages << "\n";
     pageTable = new TranslationEntry[numPages];
-    pageTable->FIFOCount = 0;
     for (unsigned int i = 0, j = 0; i < numPages; i++)
     {
 
@@ -155,7 +154,7 @@ bool AddrSpace::Load(char *fileName)
             pageTable[i].use = false;
             pageTable[i].dirty = false;
             pageTable[i].readOnly = false;
-            pageTable[i].FIFOIndex = pageTable->FIFOCount++;
+            pageTable[i].FIFOIndex = kernel->machine->FIFOCount++;
             // then, copy in the code and data segments into memory
 
             if (i < codeNumPages)
@@ -174,7 +173,7 @@ bool AddrSpace::Load(char *fileName)
             pageTable[i].use = false;
             pageTable[i].dirty = false;
             pageTable[i].readOnly = false;
-            pageTable[i].FIFOIndex = pageTable->FIFOCount++;
+            pageTable[i].FIFOIndex = kernel->machine->FIFOCount++;
 
             // then, copy in the code and data segments into memory
             if (i < codeNumPages)
