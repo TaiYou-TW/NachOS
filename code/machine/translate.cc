@@ -270,7 +270,7 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
             pageTable[vpn].FIFOIndex = kernel->machine->FIFOCount++;
         }
         entry = &pageTable[vpn];
-        pageTable[vpn]->lastUsedTick = kernel->stats->userTicks;
+        pageTable[vpn].lastUsedTick = kernel->stats->userTicks;
     }
     else
     {
