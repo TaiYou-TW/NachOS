@@ -116,14 +116,20 @@ bool AddrSpace::Load(char *fileName)
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize; // we need to increase the size
                                                                                           // to leave room for the stack
     numPages = divRoundUp(size, PageSize);
-    //	cout << "number of pages of " << fileName<< " is "<<numPages<<endl;
     size = numPages * PageSize;
 
     numPages = divRoundUp(size, PageSize);
 
     // CODE占用的主記憶體
     int codeNumPages = divRoundUp(noffH.code.size, PageSize);
+    int initDataNumPages = divRoundUp(noffH.initData.size, PageSize);
+    int uninitDataNumPages = divRoundUp(noffH.uninitData.size, PageSize);
+    int UserStackSizeNumPages = divRoundUp(UserStackSize, PageSize);
+    numPages = codeNumPages + initDataNumPages + uninitDataNumPages + UserStackSizeNumPages;
+
     cout << "codeNumPages: " << codeNumPages << "\n";
+    cout << "initDataNumPages: " << initDataNumPages << "\n";
+    cout << "uninitDataNumPages: " << uninitDataNumPages << "\n";
     pageTable = new TranslationEntry[numPages];
     for (unsigned int i = 0, j = 0; i < numPages; i++)
     {
@@ -140,10 +146,8 @@ bool AddrSpace::Load(char *fileName)
             j++;
         }
 
-        // cout << "i: " << i << "\n";
         cout << "PageIndex: " << j << "\n";
         char *buf = new char[PageSize];
-        cout << "Clean Buffer: " << buf << "\n";
 
         // 虛擬記憶體
         if (j >= NumPhysPages)
@@ -161,6 +165,18 @@ bool AddrSpace::Load(char *fileName)
             {
                 executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
                 cout << "Code Data Buffer: " << buf << "\n";
+                kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
+            }
+            else if (i < codeNumPages + initDataNumPages)
+            {
+                executable->ReadAt(buf, PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
+                cout << "Init Data Buffer: " << buf << "\n";
+                kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
+            }
+            else if (i < codeNumPages + initDataNumPages + uninitDataNumPages)
+            {
+                executable->ReadAt(buf, PageSize, noffH.uninitData.inFileAddr + ((i - (codeNumPages + initDataNumPages)) * PageSize));
+                cout << "Uninit Data Buffer: " << buf << "\n";
                 kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
             }
         }
@@ -182,6 +198,18 @@ bool AddrSpace::Load(char *fileName)
                     &(kernel->machine->mainMemory[j * PageSize]),
                     PageSize, noffH.code.inFileAddr + (i * PageSize));
             }
+            else if (i < codeNumPages + initDataNumPages)
+            {
+                executable->ReadAt(
+                    &(kernel->machine->mainMemory[j * PageSize]),
+                    PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
+            }
+            else if (i < codeNumPages + initDataNumPages + uninitDataNumPages)
+            {
+                executable->ReadAt(
+                    &(kernel->machine->mainMemory[j * PageSize]),
+                    PageSize, noffH.uninitData.inFileAddr + ((i - (codeNumPages + initDataNumPages)) * PageSize));
+            }
         }
     }
 
@@ -190,18 +218,18 @@ bool AddrSpace::Load(char *fileName)
     //                                   // at least until we have
     //                                   // virtual memory
     // size = numPages * PageSize;
-    DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
-    if (noffH.initData.size > 0)
-    {
-        DEBUG(dbgAddr, "Initializing data segment.");
-        DEBUG(dbgAddr, noffH.initData.virtualAddr << ", " << noffH.initData.size);
-        cout << "pgTBindex: " << noffH.initData.virtualAddr / PageSize << endl;
-        cout << "remainNum: " << (noffH.code.virtualAddr % PageSize) << endl;
+    // DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
+    // if (noffH.initData.size > 0)
+    // {
+    //     DEBUG(dbgAddr, "Initializing data segment.");
+    //     DEBUG(dbgAddr, noffH.initData.virtualAddr << ", " << noffH.initData.size);
+    //     cout << "pgTBindex: " << noffH.initData.virtualAddr / PageSize << endl;
+    //     cout << "remainNum: " << (noffH.code.virtualAddr % PageSize) << endl;
 
-        executable->ReadAt(
-            &(kernel->machine->mainMemory[pageTable[noffH.initData.virtualAddr / PageSize].physicalPage * PageSize + (PageSize)]),
-            noffH.initData.size, noffH.initData.inFileAddr);
-    }
+    //     executable->ReadAt(
+    //         &(kernel->machine->mainMemory[pageTable[noffH.initData.virtualAddr / PageSize].physicalPage * PageSize + (PageSize)]),
+    //         noffH.initData.size, noffH.initData.inFileAddr);
+    // }
     delete executable; // close file
     return TRUE;       // success
 }
