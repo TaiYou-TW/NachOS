@@ -122,14 +122,9 @@ bool AddrSpace::Load(char *fileName)
 
     // CODE占用的主記憶體
     int codeNumPages = divRoundUp(noffH.code.size, PageSize);
-    int initDataNumPages = divRoundUp(noffH.initData.size, PageSize);
-    int uninitDataNumPages = divRoundUp(noffH.uninitData.size, PageSize);
-    int UserStackSizeNumPages = divRoundUp(UserStackSize, PageSize);
-    numPages = codeNumPages + initDataNumPages + uninitDataNumPages + UserStackSizeNumPages;
-
     cout << "codeNumPages: " << codeNumPages << "\n";
-    cout << "initDataNumPages: " << initDataNumPages << "\n";
-    cout << "uninitDataNumPages: " << uninitDataNumPages << "\n";
+    // cout << "initDataNumPages: " << initDataNumPages << "\n";
+    // cout << "uninitDataNumPages: " << uninitDataNumPages << "\n";
     pageTable = new TranslationEntry[numPages];
     for (unsigned int i = 0, j = 0; i < numPages; i++)
     {
@@ -224,7 +219,7 @@ bool AddrSpace::Load(char *fileName)
         cout << "remainNum: " << (noffH.code.virtualAddr % PageSize) << endl;
 
         executable->ReadAt(
-            &(kernel->machine->mainMemory[pageTable[noffH.initData.virtualAddr / PageSize].physicalPage * PageSize + (PageSize)]),
+            &(kernel->machine->mainMemory[pageTable[noffH.initData.virtualAddr / PageSize].physicalPage * PageSize + (noffH.code.virtualAddr % PageSize)]),
             noffH.initData.size, noffH.initData.inFileAddr);
     }
     delete executable; // close file
