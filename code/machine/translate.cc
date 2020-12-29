@@ -226,11 +226,11 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
             {
                 int swapInSectorIdx = pageTable[vpn].virtualPage;
                 int swapOutPageIdx = -1;
-                for (int i = 0, int minIdx = 99999999; i < NumPhysPages + NumVirsPages; i++)
+                for (int i = 0, minIdx = 99999999; i < NumPhysPages + NumVirsPages; i++)
                 {
                     if (pageTable[i].valid && minIdx > pageTable[i].FIFOIndex)
                     {
-                        minIdx = FIFOIndex;
+                        minIdx = pageTable[i].FIFOIndex;
                         swapOutPageIdx = i;
                     }
                 }
@@ -254,11 +254,9 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
                 cout << "FIFOIndex: " << pageTable[vpn].FIFOIndex << endl;
             }
             // LRU
-            else
-            {
-
-                kernel->machine->LastUsedTicks[vpn] = 0;
-            }
+            // else
+            // {
+            // }
         }
         entry = &pageTable[vpn];
     }
