@@ -166,16 +166,16 @@ bool AddrSpace::Load(char *fileName)
                 executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
                 kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
             }
-            else if (i < codeNumPages + initDataNumPages)
-            {
-                executable->ReadAt(buf, PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
-                kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
-            }
-            else if (i < codeNumPages + initDataNumPages + uninitDataNumPages)
-            {
-                executable->ReadAt(buf, PageSize, noffH.uninitData.inFileAddr + ((i - (codeNumPages + initDataNumPages)) * PageSize));
-                kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
-            }
+            // else if (i < codeNumPages + initDataNumPages)
+            // {
+            //     executable->ReadAt(buf, PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
+            //     kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
+            // }
+            // else if (i < codeNumPages + initDataNumPages + uninitDataNumPages)
+            // {
+            //     executable->ReadAt(buf, PageSize, noffH.uninitData.inFileAddr + ((i - (codeNumPages + initDataNumPages)) * PageSize));
+            //     kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
+            // }
         }
         // 實體記憶體
         else
@@ -195,18 +195,18 @@ bool AddrSpace::Load(char *fileName)
                     &(kernel->machine->mainMemory[j * PageSize]),
                     PageSize, noffH.code.inFileAddr + (i * PageSize));
             }
-            else if (i < codeNumPages + initDataNumPages)
-            {
-                executable->ReadAt(
-                    &(kernel->machine->mainMemory[j * PageSize]),
-                    PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
-            }
-            else if (i < codeNumPages + initDataNumPages + uninitDataNumPages)
-            {
-                executable->ReadAt(
-                    &(kernel->machine->mainMemory[j * PageSize]),
-                    PageSize, noffH.uninitData.inFileAddr + ((i - (codeNumPages + initDataNumPages)) * PageSize));
-            }
+            // else if (i < codeNumPages + initDataNumPages)
+            // {
+            //     executable->ReadAt(
+            //         &(kernel->machine->mainMemory[j * PageSize]),
+            //         PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
+            // }
+            // else if (i < codeNumPages + initDataNumPages + uninitDataNumPages)
+            // {
+            //     executable->ReadAt(
+            //         &(kernel->machine->mainMemory[j * PageSize]),
+            //         PageSize, noffH.uninitData.inFileAddr + ((i - (codeNumPages + initDataNumPages)) * PageSize));
+            // }
         }
     }
 
@@ -216,17 +216,17 @@ bool AddrSpace::Load(char *fileName)
     //                                   // virtual memory
     // size = numPages * PageSize;
     // DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
-    // if (noffH.initData.size > 0)
-    // {
-    //     DEBUG(dbgAddr, "Initializing data segment.");
-    //     DEBUG(dbgAddr, noffH.initData.virtualAddr << ", " << noffH.initData.size);
-    //     cout << "pgTBindex: " << noffH.initData.virtualAddr / PageSize << endl;
-    //     cout << "remainNum: " << (noffH.code.virtualAddr % PageSize) << endl;
+    if (noffH.initData.size > 0)
+    {
+        DEBUG(dbgAddr, "Initializing data segment.");
+        DEBUG(dbgAddr, noffH.initData.virtualAddr << ", " << noffH.initData.size);
+        cout << "pgTBindex: " << noffH.initData.virtualAddr / PageSize << endl;
+        cout << "remainNum: " << (noffH.code.virtualAddr % PageSize) << endl;
 
-    //     executable->ReadAt(
-    //         &(kernel->machine->mainMemory[pageTable[noffH.initData.virtualAddr / PageSize].physicalPage * PageSize + (PageSize)]),
-    //         noffH.initData.size, noffH.initData.inFileAddr);
-    // }
+        executable->ReadAt(
+            &(kernel->machine->mainMemory[pageTable[noffH.initData.virtualAddr / PageSize].physicalPage * PageSize + (PageSize)]),
+            noffH.initData.size, noffH.initData.inFileAddr);
+    }
     delete executable; // close file
     return TRUE;       // success
 }
