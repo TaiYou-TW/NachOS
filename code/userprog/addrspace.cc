@@ -165,6 +165,7 @@ bool AddrSpace::Load(char *fileName)
                 kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
             }
         }
+        // 實體記憶體
         else
         {
             AddrSpace::usedPhyPage[j] = true;
@@ -191,7 +192,6 @@ bool AddrSpace::Load(char *fileName)
     //                                   // virtual memory
     // size = numPages * PageSize;
     DEBUG(dbgAddr, "Initializing address space: " << numPages << ", " << size);
-
     if (noffH.initData.size > 0)
     {
         DEBUG(dbgAddr, "Initializing data segment.");
