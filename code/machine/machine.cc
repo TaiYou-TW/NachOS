@@ -70,7 +70,7 @@ Machine::Machine(bool debug)
     tlb = NULL;
     pageTable = NULL;
 #endif
-    pageReplacementType = PageReplacementType.FIFO;
+    pageReplacementType = PageReplacementType.FIFOReplacement;
     singleStep = debug;
     CheckEndian();
 }

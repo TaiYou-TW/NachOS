@@ -54,7 +54,7 @@ enum ExceptionType
 };
 enum PageReplacementType
 {
-	FIFO,
+	FIFOReplacement,
 	LRU
 }
 // User program CPU state.  The full set of MIPS registers, plus a few

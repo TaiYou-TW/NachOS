@@ -222,7 +222,7 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
             kernel->stats->numPageFaults++;
 
             // FIFO
-            if (kernel->machine->pageReplacementType == FIFO)
+            if (kernel->machine->pageReplacementType == FIFOReplacement)
             {
                 int swapInSectorIdx = pageTable[vpn].virtualPage;
                 int swapOutPageIdx = -1;
