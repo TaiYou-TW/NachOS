@@ -164,19 +164,16 @@ bool AddrSpace::Load(char *fileName)
             if (i < codeNumPages)
             {
                 executable->ReadAt(buf, PageSize, noffH.code.inFileAddr + (i * PageSize));
-                cout << "Code Data Buffer: " << buf << "\n";
                 kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
             }
             else if (i < codeNumPages + initDataNumPages)
             {
                 executable->ReadAt(buf, PageSize, noffH.initData.inFileAddr + ((i - codeNumPages) * PageSize));
-                cout << "Init Data Buffer: " << buf << "\n";
                 kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
             }
             else if (i < codeNumPages + initDataNumPages + uninitDataNumPages)
             {
                 executable->ReadAt(buf, PageSize, noffH.uninitData.inFileAddr + ((i - (codeNumPages + initDataNumPages)) * PageSize));
-                cout << "Uninit Data Buffer: " << buf << "\n";
                 kernel->virtMemory->WriteSector(j - NumPhysPages, buf);
             }
         }
