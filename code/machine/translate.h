@@ -41,10 +41,8 @@ public:
                              // page is referenced or modified.
   bool dirty;                // This bit is set by the hardware every time the
                              // page is modified.
-  static int FIFOCount;
   int FIFOIndex;
   int lastUsedTick;
 };
-int TranslationEntry::FIFOCount = 0;
 
 #endif
