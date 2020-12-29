@@ -250,7 +250,7 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
 
                 pageTable[vpn].physicalPage = pageTable[swapOutPageIdx].physicalPage;
                 pageTable[vpn].valid = true;
-                pageTable[vpn].FIFOIndex = pageTable->count++;
+                pageTable[vpn].FIFOIndex = pageTable->FIFOCount++;
                 cout << "FIFOIndex: " << pageTable[vpn].FIFOIndex << endl;
             }
             // LRU
