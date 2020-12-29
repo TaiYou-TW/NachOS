@@ -221,11 +221,13 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
 
             kernel->stats->numPageFaults++;
 
+            int swapInSectorIdx = pageTable[vpn].virtualPage;
+            int swapOutPageIdx = -1;
+
+            // 找出交換頁
             // FIFO
             if (kernel->machine->pageReplacementType == FIFOReplacement)
             {
-                int swapInSectorIdx = pageTable[vpn].virtualPage;
-                int swapOutPageIdx = -1;
                 for (unsigned int i = 0, minIdx = 99999999; i < NumPhysPages + NumVirsPages; i++)
                 {
                     if (pageTable[i].valid && minIdx > pageTable[i].FIFOIndex)
@@ -234,31 +236,41 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
                         swapOutPageIdx = i;
                     }
                 }
-                cout << "Victim: " << swapOutPageIdx << endl;
-
-                char *buf = new char[PageSize];
-                char *outBuf = new char[PageSize];
-
-                kernel->virtMemory->ReadSector(swapInSectorIdx, buf);
-                memcpy(outBuf, &mainMemory[pageTable[swapOutPageIdx].physicalPage * PageSize], PageSize);
-
-                memcpy(&mainMemory[pageTable[swapOutPageIdx].physicalPage * PageSize], buf, PageSize);
-                kernel->virtMemory->WriteSector(swapInSectorIdx, outBuf);
-
-                pageTable[swapOutPageIdx].virtualPage = pageTable[vpn].virtualPage;
-                pageTable[swapOutPageIdx].valid = false;
-
-                pageTable[vpn].physicalPage = pageTable[swapOutPageIdx].physicalPage;
-                pageTable[vpn].valid = true;
-                pageTable[vpn].FIFOIndex = kernel->machine->FIFOCount++;
-                cout << "FIFOIndex: " << pageTable[vpn].FIFOIndex << endl;
             }
             // LRU
-            // else
-            // {
-            // }
+            else
+            {
+                for (unsigned int i = 0, minTick = 99999999; i < NumPhysPages + NumVirsPages; i++)
+                {
+                    if (pageTable[i].valid && minTick > pageTable[i].lastUsedTick)
+                    {
+                        minTick = pageTable[i].lastUsedTick;
+                        swapOutPageIdx = i;
+                    }
+                }
+            }
+
+            cout << "Victim: " << swapOutPageIdx << endl;
+
+            char *buf = new char[PageSize];
+            char *outBuf = new char[PageSize];
+
+            // 使用memcpy進行交換
+            kernel->virtMemory->ReadSector(swapInSectorIdx, buf);
+            memcpy(outBuf, &mainMemory[pageTable[swapOutPageIdx].physicalPage * PageSize], PageSize);
+            memcpy(&mainMemory[pageTable[swapOutPageIdx].physicalPage * PageSize], buf, PageSize);
+            kernel->virtMemory->WriteSector(swapInSectorIdx, outBuf);
+
+            // 對交換完後的兩頁分別進行處理
+            pageTable[swapOutPageIdx].virtualPage = pageTable[vpn].virtualPage;
+            pageTable[swapOutPageIdx].valid = false;
+
+            pageTable[vpn].physicalPage = pageTable[swapOutPageIdx].physicalPage;
+            pageTable[vpn].valid = true;
+            pageTable[vpn].FIFOIndex = kernel->machine->FIFOCount++;
         }
         entry = &pageTable[vpn];
+        pageTable[vpn]->lastUsedTick = kernel->stats->userTicks;
     }
     else
     {

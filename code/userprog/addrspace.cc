@@ -123,8 +123,6 @@ bool AddrSpace::Load(char *fileName)
     // CODE占用的主記憶體
     int codeNumPages = divRoundUp(noffH.code.size, PageSize);
     cout << "codeNumPages: " << codeNumPages << "\n";
-    // cout << "initDataNumPages: " << initDataNumPages << "\n";
-    // cout << "uninitDataNumPages: " << uninitDataNumPages << "\n";
     pageTable = new TranslationEntry[numPages];
     for (unsigned int i = 0, j = 0; i < numPages; i++)
     {
@@ -154,6 +152,7 @@ bool AddrSpace::Load(char *fileName)
             pageTable[i].dirty = false;
             pageTable[i].readOnly = false;
             pageTable[i].FIFOIndex = kernel->machine->FIFOCount++;
+            pageTable[i].lastUsedTick = -1; //尚未被使用
             // then, copy in the code and data segments into memory
 
             if (i < codeNumPages)
@@ -182,6 +181,7 @@ bool AddrSpace::Load(char *fileName)
             pageTable[i].dirty = false;
             pageTable[i].readOnly = false;
             pageTable[i].FIFOIndex = kernel->machine->FIFOCount++;
+            pageTable[i].lastUsedTick = -1; //尚未被使用
 
             // then, copy in the code and data segments into memory
             if (i < codeNumPages)
