@@ -226,7 +226,7 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
             {
                 int swapInSectorIdx = pageTable[vpn].virtualPage;
                 int swapOutPageIdx = -1;
-                for (int i = 0, minIdx = 99999999; i < NumPhysPages + NumVirsPages; i++)
+                for (unsigned int i = 0, minIdx = 99999999; i < NumPhysPages + NumVirsPages; i++)
                 {
                     if (pageTable[i].valid && minIdx > pageTable[i].FIFOIndex)
                     {
@@ -240,9 +240,9 @@ Machine::Translate(int virtAddr, int *physAddr, int size, bool writing)
                 char *outBuf = new char[PageSize];
 
                 kernel->virtMemory->ReadSector(swapInSectorIdx, buf);
-                memcpy(outBuf, mainMemory[swapOutPageIdx], PageSize);
+                memcpy(outBuf, &mainMemory[pageTable[swapOutPageIdx].physicalPage * pageSize], PageSize);
 
-                memcpy(&mainMemory[swapOutPageIdx], buf, PageSize);
+                memcpy(&mainMemory[pageTable[swapOutPageIdx].physicalPage * pageSize], buf, PageSize);
                 kernel->virtMemory->WriteSector(swapInSectorIdx, outBuf);
 
                 pageTable[swapOutPageIdx].virtualPage = pageTable[vpn].virtualPage;
